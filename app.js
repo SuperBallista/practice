@@ -15,10 +15,40 @@ const app = express();
 // const wss = new WebSocket.Server({ server });
 const csrf = require('csurf');
 const cookieParser = require('cookie-parser');
+const fs = require('fs');
+const dotenv = require('dotenv');
+const cron = require('node-cron');
+const crypto = require('crypto');
+
+const envPath = path.join(__dirname, '.env');
+dotenv.config({ path: envPath });
 
 
 const nodemailer = require('nodemailer');
 const createTransport = nodemailer.createTransport;
+
+// 비밀키 생성 함수
+function generateSecretKey() {
+  return crypto.randomBytes(64).toString('hex');
+}
+
+function rotateSecretKey() {
+  const newSecret = generateSecretKey();
+  let envFileContent = fs.readFileSync(envPath, 'utf-8').split('\n');
+  envFileContent[4] = `JWT_SECRET=${newSecret}`; // 5번째 줄 수정
+  fs.writeFileSync(envPath, envFileContent.join('\n'));
+
+  dotenv.config({ path: envPath });
+  JWT_SECRET = process.env.JWT_SECRET;
+}
+
+rotateSecretKey();
+
+// 비밀키 주기적으로 갱신 (예: 매일 자정)
+cron.schedule('0 0 * * *', () => {
+  rotateSecretKey();
+});
+
 
 
 
@@ -88,7 +118,7 @@ app.get('/csrf-token', (req, res) => {
 app.use(bodyParser.json());
 
 
-// 세션 유효성 확인 미들웨어
+// 인증 미들웨어
 function isAuthenticated(req, res, next) {
   const token = req.header('Authorization')?.split(' ')[1];
 

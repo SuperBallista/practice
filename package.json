@@ -20,10 +20,12 @@
     "express": "^4.19.2",
     "express-mysql-session": "^3.0.2",
     "express-session": "^1.18.0",
+    "fs": "^0.0.1-security",
     "googleapis": "^131.0.0",
     "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.2.2",
     "moment": "^2.29.4",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "styled-components": "^6.1.8",
     "ws": "^8.16.0"
